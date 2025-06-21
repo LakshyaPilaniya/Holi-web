@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Festival Web</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #361040;
+      color: white;
+      overflow-x: hidden; /* Prevent horizontal scrollbar */
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background-color: #270933;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .logo {
+      font-size: 24px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 16px;
+    }
+
+    nav a {
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid white;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      background: white;
+      color: #361040;
+    }
+
+    section {
+      display: none;
+      padding: 40px 20px;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    /* Wishes Section */
+    .heading {
+      font-size: 2rem;
+      color: #FFAA00;
+      text-align: center;
+    }
+
+    .colors {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .color {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .red { background: #FF0000; }
+    .green { background: #00FF00; }
+    .blue { background: #0000FF; }
+    .yellow { background: #FFFF00; }
+    .pink { background: #FFC0CB; }
+    .orange { background: #FFA500; }
+
+    .messages p {
+      color: #FFD700;
+      margin: 6px 0;
+      text-align: center;
+    }
+
+    /* Animation particles */
+    #animation {
+      position: relative;
+      height: 80vh; /* Take most of viewport height */
+      border: 2px solid transparent; /* Just so area is visible */
+      overflow: hidden;
+      background: #2b0740;
+    }
+
+    .particle {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: float 2s ease-out forwards, fadeColor 1.5s infinite;
+      transform: scale(1.2);
+      filter: blur(4px);
+      will-change: transform, opacity;
+    }
+
+    @keyframes float {
+      0% { transform: scale(1.2) translateY(0); opacity: 1; }
+      100% { transform: scale(1.8) translateY(-150px); opacity: 0; }
+    }
+
+    @keyframes fadeColor {
+      0%, 100% { filter: hue-rotate(0deg); }
+      50% { filter: hue-rotate(180deg); }
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Game Section CSS */
+    #controls {
+      margin: 10px auto 30px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 500px;
+      color: #FF6600; /* Bright orange color for score */
+      font-weight: bold;
+      font-size: 24px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ff6666;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #ff4d4d;
+    }
+
+    #game {
+      position: relative;
+      width: 500px;
+      height: 80vh; /* Use 80% viewport height for game */
+      overflow: hidden;
+      border: 2px solid transparent; /* Removed black border line */
+      background-color: white;
+      margin: 0 auto;
+    }
+
+    .bloon-container {
+      position: absolute;
+      bottom: -120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: floatUp linear forwards;
+    }
+
+    .bloon {
+      width: 50px;
+      height: 70px;
+      background: radial-gradient(circle at 50% 30%, #ff6666, #cc3333);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      animation: sway 2s infinite ease-in-out alternate;
+      cursor: pointer;
+    }
+
+    .string {
+      width: 2px;
+      height: 50px;
+      background-color: #333;
+    }
+
+    @keyframes floatUp {
+      from {
+        bottom: -120px;
+      }
+      to {
+        bottom: 100vh;
+      }
+    }
+
+    @keyframes sway {
+      from {
+        transform: translateX(-10px);
+      }
+      to {
+        transform: translateX(10px);
+      }
+    }
+
+    #thanksMessage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 36px;
+      font-weight: bold;
+      display: none;
+      z-index: 10;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#" class="logo">Festival</a>
+    <nav>
+      <ul>
+        <li><a href="#home" class="nav-link" data-target="home">Home</a></li>
+        <li><a href="#wishes" class="nav-link" data-target="wishes">Wishes</a></li>
+        <li><a href="#animation" class="nav-link" data-target="animation">Animation</a></li>
+        <li><a href="#game" class="nav-link" data-target="game">Game</a></li>
+        <li><a href="#about" class="nav-link" data-target="about">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="home">
+    <h1>Welcome</h1>
+    <h2>About Holi</h2>
+    <p>Holi is a vibrant and joyous festival celebrated in India and many other countries to mark the arrival of spring.It usually occurs in late February or March, depending on the Hindu lunar calendar, on the full moon day known as Purnima in the month of Phalguna.<br><br>
+
+    The festival is deeply rooted in Hindu mythology and symbolizes the triumph of good over evil.It commemorates the story of Prahlad and Holika.Prahlad was a devout follower of Lord Vishnu, while his father, the demon king Hiranyakashipu, was opposed to Vishnu and wanted to be worshipped as a god.Hiranyakashipu's sister, Holika, had a boon that made her immune to fire.To eliminate Prahlad, Holika tricked him into sitting on a pyre with her.However, her immunity failed, and she was burned to ashes while Prahlad emerged unscathed, protected by his devotion to Vishnu.This story represents the victory of faith and righteousness over arrogance and evil.<br><br>
+
+    The night before Holi, people gather to perform rituals and light bonfires, known as Holika Dahan, to symbolize the burning of Holika and the victory of good.The main day of Holi, often called Rangwali Holi, is filled with festivities where people of all ages throw colored powders (gulal) and water at each other, dance to music, and enjoy special sweets and dishes.</p>
+  </section>
+
+  <section id="wishes">
+    <h1 class="heading">🌈 Wishing You a Colorful & Happy Holi! 🌸</h1>
+    <div class="colors">
+      <div class="color red"></div>
+      <div class="color green"></div>
+      <div class="color blue"></div>
+      <div class="color yellow"></div>
+      <div class="color pink"></div>
+      <div class="color orange"></div>
+    </div>
+    <div class="messages">
+      <p>🎉 May your life be as colorful as Holi's vibrant hues!</p>
+      <p>🌼 May love, laughter, and happiness fill your days!</p>
+      <p>✨ Wishing you peace, prosperity, and beautiful memories!</p>
+      <p>💫 Let the colors of Holi brighten your journey ahead!</p>
+      <p>🌸 Spread the joy of togetherness and celebration this Holi!</p>
+    </div>
+  </section>
+
+  <section id="animation">
+    <h2 style="text-align:center; color:#fff;">Watercolor Animation</h2>
+    <p style="text-align:center; color:#eee;">Move your mouse here to see colors float!</p>
+  </section>
+
+  <section id="game">
+    <div id="controls">
+      <div id="score">Score: 0</div>
+    </div>
+    <div id="game"></div>
+    <div id="thanksMessage">Thanks for Playing!</div>
+  </section>
+
+  <section id="about">
+    <h1>My name is Lakshya Pilaniya</h1>
+    <h1>I read in class 9th</h1>
+    <h1>I study in Government Senior Secondary School Udwala</h1>
+    <h1>District Churu</h1>
+  </section>
+
+  <script>
+    // Navigation logic
+    function showSection(id) {
+      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeLink = document.querySelector(`.nav-link[data-target="${id}"]`);
+      if (activeLink) activeLink.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = link.getAttribute('data-target');
+        history.pushState(null, '', `#${target}`);
+        showSection(target);
+      });
+    });
+
+    window.addEventListener('load', () => {
+      const hash = location.hash.substring(1);
+      const validSections = ['home','wishes','animation','game','about'];
+      showSection(validSections.includes(hash) ? hash : 'home');
+    });
+
+    window.addEventListener('popstate', () => {
+      const hash = location.hash.substring(1);
+      showSection(hash || 'home');
+    });
+
+    // Animation particles effect on mouse move (full screen)
+    const colors = ['#FFB6C1','#FAEBD7','#ADD8E6','#98FB98','#FFD700','#EE82EE'];
+    const animationSection = document.getElementById('animation');
+
+    function createParticle(x,y) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      animationSection.appendChild(p);
+      setTimeout(() => p.remove(), 2000);
+    }
+
+    animationSection.addEventListener('mousemove', e => {
+      // Coordinates relative to #animation section (not whole page)
+      const rect = animationSection.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      for (let i = 0; i < 6; i++) {
+        createParticle(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20);
+      }
+    });
+
+    // Game code
+    const gameContainer = document.querySelector('#game #game');
+    const scoreDisplay = document.getElementById("score");
+    let score = 0;
+    let gameRunning = true;
+    let balloonInterval;
+    const maxBalloons = 5;  // Max balloons on screen at once
+
+    function getRandomGradient() {
+      const color1 = getRandomColor();
+      const color2 = getRandomColor();
+      return `radial-gradient(circle at 50% 30%, ${color1}, ${color2})`;
+    }
+
+    function getRandomColor() {
+      const letters = "0123456789ABCDEF";
+      let color = "#";
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function createBalloon() {
+      if (!gameRunning) return;
+
+      const existingBalloons = gameContainer.querySelectorAll('.bloon-container').length;
+      if (existingBalloons >= maxBalloons) {
+        // Don't add more balloons if max on screen
+        return;
+      }
+
+      const container = document.createElement("div");
+      container.classList.add("bloon-container");
+
+      const balloon = document.createElement("div");
+      balloon.classList.add("bloon");
+
+      const string = document.createElement("div");
+      string.classList.add("string");
+
+      container.appendChild(balloon);
+      container.appendChild(string);
+
+      const leftPosition = Math.random() * (gameContainer.offsetWidth - 50);
+      const randomGradient = getRandomGradient();
+
+      container.style.left = `${leftPosition}px`;
+      container.style.animationDuration = `${6 + Math.random() * 4}s`;
+      container.style.animationName = "floatUp";
+      balloon.style.background = randomGradient;
+
+      balloon.onclick = () => {
+        balloon.style.background = "transparent";
+        balloon.style.boxShadow = "none";
+        balloon.style.transition = "transform 0.5s";
+        balloon.style.transform = "scale(0.1)";
+        setTimeout(() => container.remove(), 500);
+
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+      };
+
+      container.addEventListener("animationend", () => {
+        container.remove();
+      });
+
+      gameContainer.appendChild(container);
+    }
+
+    function generateBalloons() {
+      balloonInterval = setInterval(createBalloon, 1500);
+    }
+
+    generateBalloons();
+
+  </script>
+
+</body>
+</html>
